@@ -1,0 +1,445 @@
+:root {
+  --bau-orange: #f35b14;
+  --bau-black: #000000;
+  --bau-peach: #ffa67d;
+  --bau-white: #ffffff;
+
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--bau-black);
+  background-color: #f3f4f6;
+}
+
+body {
+  margin: 0;
+}
+
+/* чтобы React-корень растягивался на всю страницу */
+#root {
+  min-height: 100vh;
+}
+
+/* ===== ссылки ===== */
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ===== корневой layout: шапка + контент + футер ===== */
+
+.app-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f3f4f6;
+  color: var(--bau-black);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ===== шапка ===== */
+
+.app-header {
+  background: var(--bau-orange);
+  color: var(--bau-white);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.app-header-inner {
+  /* убираем max-width и центрирование */
+  /* max-width: 1200px; */
+  /* margin: 0 auto; */
+  margin: 0;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+
+.app-logo-block {
+  display: flex;
+  align-items: center;
+}
+
+/* если используешь картинку-логотип */
+.app-logo-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px; /* можно убрать, если не нужно скруглять */
+  object-fit: contain;
+}
+
+/* запасной вариант — круг с буквой B */
+.app-logo-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: #0f172a;
+}
+
+.app-header-title-main {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000000;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+    "Roboto", "Helvetica Neue", Arial, sans-serif;
+}
+
+
+
+.app-header-title-sub {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ===== нижняя плашка ===== */
+
+.app-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--bau-peach); /* персиковый только здесь */
+}
+
+.app-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 6px 20px 8px;
+  font-size: 11px;
+  color: var(--bau-black);
+  display: flex;
+  justify-content: flex-end; /* flex-start — если нужно слева */
+}
+
+.app-footer-inner a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.app-footer-inner a:hover {
+  text-decoration: underline;
+}
+
+/* ===== оболочка внутри (sidebar + main) ===== */
+
+.app-shell {
+  display: flex;
+  flex: 1;
+}
+
+/* ===== боковое меню ===== */
+
+.sidebar {
+  width: 200px;
+  background: var(--bau-black);
+  color: var(--bau-white);
+  padding: 16px 12px;
+  box-sizing: border-box;
+}
+
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-link {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.sidebar-link-active,
+.sidebar-link:hover {
+  background: var(--bau-orange);
+}
+
+/* ===== основная область ===== */
+
+.main-area {
+  flex: 1;
+  padding: 24px 32px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: #f3f4f6;
+  overflow: auto;
+}
+
+/* чтобы карточка не растягивалась на всю ширину */
+
+.main-area > div {
+  width: 100%;
+  max-width: 960px;
+}
+
+/* ===== карточки ===== */
+
+.card {
+  background: var(--bau-white);
+  border-radius: 16px;
+  padding: 20px 20px 16px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 16px;
+}
+
+.card + .card {
+  margin-top: 24px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  color: var(--bau-black);
+}
+
+/* ===== секции формы ===== */
+
+.form-section {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
+.form-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.form-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+/* ===== сетка полей ===== */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  column-gap: 18px;
+  row-gap: 10px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.form-label {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ===== инпуты ===== */
+
+.form-input,
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.form-input:focus,
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.16);
+  background: #ffffff;
+}
+
+input[type='date'].form-input,
+input[type='time'].form-input,
+select.form-input {
+  padding-right: 6px;
+}
+
+/* ===== инлайн-группы (объем + ед., время) ===== */
+
+.form-inline {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.form-inline > .form-input {
+  flex: 1;
+}
+
+.form-inline-separator {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* ===== ошибки ===== */
+
+.form-error,
+.error-text {
+  font-size: 11px;
+  color: #b91c1c;
+}
+
+/* ===== чипы (переключатели) ===== */
+
+.chips-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+  cursor: pointer;
+  background: #f9fafb;
+  color: var(--bau-orange); /* было #4b5563 */
+  transition: all 0.15s ease-out;
+}
+
+.chip:hover {
+  border-color: var(--bau-orange);
+  color: #111827;
+  background: #ffe7d6;
+}
+
+.chip-active {
+  background: linear-gradient(135deg, #f35b14, #f97316);
+  color: #f9fafb;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+
+/* ===== кнопки (общие) ===== */
+
+.primary-btn {
+  margin-top: 18px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  background: #2563eb; /* как просил, цвет оставляем */
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+  transition:
+    background-color 0.15s ease,
+    transform 0.05s ease,
+    box-shadow 0.15s ease;
+}
+
+.primary-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* ===== список заявок ===== */
+
+.list {
+  margin-top: 14px;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--bau-black);
+}
+
+.list > li {
+  background: var(--bau-white);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+}
+
+.list > li + li {
+  margin-top: 8px;
+}
+
+.list > li:nth-child(odd) {
+  background: #f3f4f6;
+}
+
+/* Кнопки внутри списка (копировать/удалить/редактировать/Telegram)
+   стилизуются в JSX, здесь только базовые настройки. */
+
+.list > li button.primary-btn {
+  box-shadow: none;
+  background: #111827;
+  color: #f9fafb;
+  margin-top: 0;
+}
+
+.list > li button.primary-btn:hover {
+  background: #020617;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===== вспомогательное: .field (если используется в формах) ===== */
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field label {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
