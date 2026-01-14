@@ -34,7 +34,6 @@ export default function ServiceForm({
       trips: initialValues?.trips || '',
       unit: initialValues?.unit || 'часов', // для текста заявки
       price: initialValues?.price || '',
-      // новые поля
       clientName: initialValues?.clientName || '',
       clientPrice: initialValues?.clientPrice || '',
     },
@@ -111,137 +110,153 @@ export default function ServiceForm({
 
   return (
     <div className="card">
-        <h2 className="card-title">Заявка на услугу</h2>
+      <h2 className="card-title">Заявка на услугу</h2>
 
+      <form onSubmit={handleSubmit(onSubmit)}>
         {/* Шапка */}
         <div className="form-section">
-        <div className="form-section-title">Шапка</div>
-        <div className="form-grid">
+          <div className="form-section-title">Шапка</div>
+          <div className="form-grid">
             <div className="form-row">
-            <label className="form-label">Дата</label>
-            <input
+              <label className="form-label">Дата</label>
+              <input
                 type="date"
                 className="form-input"
                 {...register('date', { required: true })}
-            />
+              />
+              {errors.date && (
+                <span className="form-error">Укажи дату</span>
+              )}
             </div>
 
             <div className="form-row">
-            <label className="form-label">Время до</label>
-            <input
+              <label className="form-label">Время до</label>
+              <input
                 type="time"
                 className="form-input"
                 {...register('toTime', { required: true })}
-            />
+              />
             </div>
 
             <div className="form-row">
-            <label className="form-label">Услуга</label>
-            <input
+              <label className="form-label">Услуга</label>
+              <input
                 type="text"
                 className="form-input"
                 {...register('serviceName', { required: true })}
                 placeholder="Уборка снега"
-            />
+              />
             </div>
-        </div>
+          </div>
         </div>
 
         {/* Данные клиента */}
         <div className="form-section">
-        <div className="form-section-title">Данные клиента</div>
-        <div className="form-grid">
+          <div className="form-section-title">Данные клиента</div>
+          <div className="form-grid">
             <div className="form-row">
-            <label className="form-label">Клиент</label>
-            <input
+              <label className="form-label">Клиент</label>
+              <input
                 type="text"
                 className="form-input"
                 {...register('clientName')}
                 placeholder="ООО Клиент"
-            />
+              />
             </div>
 
             <div className="form-row">
-            <label className="form-label">Адрес</label>
-            <input
+              <label className="form-label">Адрес</label>
+              <input
                 type="text"
                 className="form-input"
                 {...register('address', { required: true })}
                 placeholder="Адрес работ"
-            />
+              />
             </div>
 
             <div className="form-row">
-            <label className="form-label">Принимающий</label>
-            <input
+              <label className="form-label">Принимающий</label>
+              <input
                 type="text"
                 className="form-input"
                 {...register('receiver', { required: true })}
                 placeholder="Имя и телефон"
-            />
+              />
             </div>
 
             <div className="form-row">
-            <label className="form-label">Цена клиенту за единицу</label>
-            <input
+              <label className="form-label">Цена клиенту за единицу</label>
+              <input
                 type="number"
                 className="form-input"
                 {...register('clientPrice')}
                 placeholder="например, 3000"
-            />
+              />
             </div>
-        </div>
+          </div>
         </div>
 
         {/* Данные исполнителя */}
         <div className="form-section">
-        <div className="form-section-title">Данные исполнителя</div>
-        <div className="form-grid">
+          <div className="form-section-title">Данные исполнителя</div>
+          <div className="form-grid">
             <div className="form-row">
-            <label className="form-label">Исполнитель</label>
-            <select className="form-input" {...register('executor')}>
+              <label className="form-label">Исполнитель</label>
+              <select className="form-input" {...register('executor')}>
                 {executors.map((name) => (
-                <option key={name} value={name}>
+                  <option key={name} value={name}>
                     {name}
-                </option>
+                  </option>
                 ))}
-            </select>
+              </select>
             </div>
 
             <div className="form-row">
-            <label className="form-label">Тип учета</label>
-            <select className="form-input" {...register('countType')}>
+              <label className="form-label">Тип учета</label>
+              <select className="form-input" {...register('countType')}>
                 <option value="hours">по часам</option>
                 <option value="trips">по рейсам</option>
-            </select>
+              </select>
             </div>
 
-            <div className="form-row">
-            <label className="form-label">Количество часов/рейсов</label>
-            <input
-                type="number"
-                className="form-input"
-                {...register('countValue')}
-                placeholder="Например, 4"
-            />
-            </div>
+            {countType === 'hours' ? (
+              <div className="form-row">
+                <label className="form-label">Количество часов</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  {...register('hours')}
+                  placeholder="Например, 4"
+                />
+              </div>
+            ) : (
+              <div className="form-row">
+                <label className="form-label">Количество рейсов</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  {...register('trips')}
+                  placeholder="Например, 4"
+                />
+              </div>
+            )}
 
             <div className="form-row">
-            <label className="form-label">Цена исполнителю за единицу</label>
-            <input
+              <label className="form-label">Цена исполнителю за единицу</label>
+              <input
                 type="number"
                 className="form-input"
                 {...register('price')}
                 placeholder="например, 2500"
-            />
+              />
             </div>
-        </div>
+          </div>
         </div>
 
         <button type="submit" className="primary-btn">
-        {mode === 'edit' ? 'Сохранить изменения' : 'Сформировать заявку'}
+          {mode === 'edit' ? 'Сохранить изменения' : 'Сформировать заявку'}
         </button>
+      </form>
     </div>
-    );
-
+  );
 }
