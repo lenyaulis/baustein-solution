@@ -5,7 +5,9 @@ import HelpPage from './pages/HelpPage';
 import RequestsPage from './pages/RequestsPage';
 import ReportsPageInner from './pages/ReportsPageInner';
 import AllRequestsPage from './pages/AllRequestsPage';
-import { usePersistedRequests } from './hooks/usePersistedRequests';
+import RemindersPage from './pages/RemindersPage';
+import { useRequestsStore } from './hooks/useRequestsStore';
+import { useRemindersStore } from './hooks/useRemindersStore';
 
 function App() {
   const {
@@ -17,7 +19,17 @@ function App() {
     setQuarryRequests,
     pickupRequests,
     setPickupRequests,
-  } = usePersistedRequests();
+    addDriverMaterial,
+    addDriverService,
+    addQuarry,
+    addPickup,
+    removeRequest,
+    loading,
+    error,
+    updateRequest,
+  } = useRequestsStore();
+
+  const { activeRemindersCount } = useRemindersStore();
 
   return (
     <div className="app-root">
@@ -45,6 +57,7 @@ function App() {
             >
               Заявки
             </NavLink>
+
             <NavLink
               to="/all-requests"
               className={({ isActive }) =>
@@ -53,6 +66,7 @@ function App() {
             >
               Все заявки
             </NavLink>
+
             <NavLink
               to="/registries/quarries"
               className={({ isActive }) =>
@@ -61,6 +75,7 @@ function App() {
             >
               Реестры карьеров
             </NavLink>
+
             <NavLink
               to="/reports"
               className={({ isActive }) =>
@@ -69,6 +84,35 @@ function App() {
             >
               Отчеты
             </NavLink>
+
+            <NavLink
+              to="/reminders"
+              className={({ isActive }) =>
+                'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
+              }
+            >
+              Напоминания
+              {activeRemindersCount > 0 && (
+                <span
+                  style={{
+                    marginLeft: 6,
+                    minWidth: 18,
+                    height: 18,
+                    borderRadius: 999,
+                    background: '#ef4444',
+                    color: '#ffffff',
+                    fontSize: 11,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 6px',
+                  }}
+                >
+                  {activeRemindersCount}
+                </span>
+              )}
+            </NavLink>
+
             <NavLink
               to="/help"
               className={({ isActive }) =>
@@ -81,6 +125,36 @@ function App() {
         </aside>
 
         <main className="main-area">
+          {loading && (
+            <div
+              style={{
+                marginBottom: 12,
+                padding: '8px 10px',
+                borderRadius: 8,
+                background: '#eff6ff',
+                color: '#1d4ed8',
+                fontSize: 13,
+              }}
+            >
+              Загрузка заявок из облака...
+            </div>
+          )}
+
+          {error && (
+            <div
+              style={{
+                marginBottom: 12,
+                padding: '8px 10px',
+                borderRadius: 8,
+                background: '#fef2f2',
+                color: '#b91c1c',
+                fontSize: 13,
+              }}
+            >
+              {error}
+            </div>
+          )}
+
           <Routes>
             <Route
               path="/"
@@ -99,6 +173,12 @@ function App() {
                   setQuarryRequests={setQuarryRequests}
                   pickupRequests={pickupRequests}
                   setPickupRequests={setPickupRequests}
+                  addDriverMaterial={addDriverMaterial}
+                  addDriverService={addDriverService}
+                  addQuarry={addQuarry}
+                  addPickup={addPickup}
+                  removeRequest={removeRequest}
+                  updateRequest={updateRequest}
                 />
               }
             />
@@ -131,6 +211,8 @@ function App() {
               }
             />
 
+            <Route path="/reminders" element={<RemindersPage />} />
+
             <Route path="/help" element={<HelpPage />} />
           </Routes>
         </main>
@@ -140,7 +222,7 @@ function App() {
       <footer className="app-footer">
         <div className="app-footer-inner">
           Приложение еще в разработке. Разработано by Ulis. Почта:{' '}
-          <a href="mailto:s3ko2000@yandex.ru">s3ko2000@yandex.ru</a>. 13.01.2026
+          <a href="mailto:s3ko2000@yandex.ru"> s3ko2000@yandex.ru</a>. 13.01.2026
         </div>
       </footer>
     </div>

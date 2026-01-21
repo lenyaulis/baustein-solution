@@ -62,10 +62,10 @@ function ReportsPageInner({
       };
 
       const materialInRange = driverMaterialRequests.filter((r) =>
-        inRange(r.date)
+        inRange(r.date),
       );
       const serviceInRange = driverServiceRequests.filter((r) =>
-        inRange(r.date)
+        inRange(r.date),
       );
       const pickupInRange = pickupRequests.filter((r) => inRange(r.date));
 
@@ -143,7 +143,13 @@ function ReportsPageInner({
           r.clientUnit === 'тонны'
             ? 'тонны'
             : r.clientUnit || '';
-        const clientPricePerUnit = Number(r.clientPrice) || 0;
+
+        // используем цену продажи как цену клиенту, с fallback на старое поле
+        const clientPricePerUnit =
+          r.sellPrice != null
+            ? Number(r.sellPrice)
+            : Number(r.clientPrice) || 0;
+
         const clientTotal = clientPricePerUnit * clientVolume;
 
         const executor = '';
@@ -157,7 +163,13 @@ function ReportsPageInner({
         const quarryName = r.quarry || '';
         const quarryVolume = clientVolume;
         const quarryUnit = r.quarryUnit || getQuarryUnitByName(r.quarry);
-        const quarryPricePerUnit = Number(r.quarryPrice) || 0;
+
+        // используем цену покупки как цену карьеру, с fallback
+        const quarryPricePerUnit =
+          r.buyPrice != null
+            ? Number(r.buyPrice)
+            : Number(r.quarryPrice) || 0;
+
         const quarryTotal = quarryPricePerUnit * quarryVolume;
 
         const profit = clientTotal - quarryTotal;
@@ -379,7 +391,8 @@ function ReportsPageInner({
       </div>
 
       <p style={{ fontSize: 13, color: '#6b7280' }}>
-        В отчет попадают заявки исполнителю (материал, самовывоз и услуга) за выбранный период.
+        В отчет попадают заявки исполнителю (материал, самовывоз и услуга) за
+        выбранный период.
       </p>
     </div>
   );

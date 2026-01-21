@@ -251,23 +251,24 @@ a:hover {
   color: #6b7280;
 }
 
-/* ===== инпуты ===== */
+/* ===== инпуты (обновлено, чтобы выглядели легче) ===== */
 
 .form-input,
 .field input,
 .field textarea,
 .field select {
   width: 100%;
-  padding: 7px 10px;
-  border-radius: 10px;
+  padding: 6px 9px;              /* было 7px 10px — чуть ниже и уже */
+  border-radius: 8px;            /* было 10px — более компактный радиус */
   border: 1px solid #d1d5db;
   background: #f9fafb;
-  font-size: 14px;
+  font-size: 13px;               /* было 14px */
   box-sizing: border-box;
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease,
     background-color 0.15s ease;
+  box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03); /* лёгкая тень */
 }
 
 .form-input:focus,
@@ -284,6 +285,28 @@ input[type='date'].form-input,
 input[type='time'].form-input,
 select.form-input {
   padding-right: 6px;
+}
+
+/* если textarea использует .field textarea — уже попадает выше;
+   если где-то есть .textarea, можно добавить: */
+.textarea {
+  width: 100%;
+  padding: 6px 9px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  font-size: 13px;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 80px;
+  box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.16);
+  background: #ffffff;
 }
 
 /* ===== инлайн-группы (объем + ед., время) ===== */
@@ -548,4 +571,24 @@ select.form-input {
     justify-content: center;
     text-align: center;
   }
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tab {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #f7f7f7;
+  cursor: pointer;
+}
+
+.tab-active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
 }

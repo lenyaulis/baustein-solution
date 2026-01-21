@@ -79,6 +79,22 @@ function PickupList({ items, onEdit, onDelete }) {
               Водитель: {r.driverLastName || '—'}; {r.truckBrand}{' '}
               {r.truckNumber}
             </div>
+
+            {/* НОВЫЙ БЛОК: цены */}
+            {(r.buyPrice != null || r.sellPrice != null) && (
+              <div>
+                {r.buyPrice != null && (
+                  <span>
+                    Покупка: {r.buyPrice} ₽ за {r.clientUnit}{' '}
+                  </span>
+                )}
+                {r.sellPrice != null && (
+                  <span>
+                    Продажа: {r.sellPrice} ₽ за {r.clientUnit}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div

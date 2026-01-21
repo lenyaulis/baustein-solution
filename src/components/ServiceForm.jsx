@@ -1,3 +1,4 @@
+// src/components/ServiceForm.jsx
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -9,10 +10,12 @@ function getDefault2026Date() {
 }
 
 export default function ServiceForm({
-  onAdd,
+  onSubmit,
+  onUpdate,
+  onCancelEdit,
+  editingId,
+  initialData,
   executors = [],
-  mode = 'create', // 'create' | 'edit'
-  initialValues,
 }) {
   const {
     register,
@@ -22,44 +25,44 @@ export default function ServiceForm({
     formState: { errors },
   } = useForm({
     defaultValues: {
-      id: initialValues?.id || Date.now(),
-      date: initialValues?.date || getDefault2026Date(),
-      toTime: initialValues?.toTime || '18:00',
-      serviceName: initialValues?.serviceName || '',
-      address: initialValues?.address || '',
-      receiver: initialValues?.receiver || '',
-      executor: initialValues?.executor || 'Не определен',
-      countType: initialValues?.countType || 'hours', // hours | trips
-      hours: initialValues?.hours || '',
-      trips: initialValues?.trips || '',
-      unit: initialValues?.unit || 'часов', // для текста заявки
-      price: initialValues?.price || '',
-      clientName: initialValues?.clientName || '',
-      clientPrice: initialValues?.clientPrice || '',
+      id: initialData?.id || Date.now(),
+      date: initialData?.date || getDefault2026Date(),
+      toTime: initialData?.toTime || '18:00',
+      serviceName: initialData?.serviceName || '',
+      address: initialData?.address || '',
+      receiver: initialData?.receiver || '',
+      executor: initialData?.executor || 'Не определен',
+      countType: initialData?.countType || 'hours', // 'hours' | 'trips'
+      hours: initialData?.hours || '',
+      trips: initialData?.trips || '',
+      unit: initialData?.unit || 'часов',
+      price: initialData?.price || '',
+      clientName: initialData?.clientName || '',
+      clientPrice: initialData?.clientPrice || '',
     },
   });
 
   const countType = watch('countType');
 
   useEffect(() => {
-    if (mode === 'edit' && initialValues) {
+    if (editingId && initialData) {
       reset({
-        id: initialValues.id,
-        date: initialValues.date || getDefault2026Date(),
-        toTime: initialValues.toTime || '18:00',
-        serviceName: initialValues.serviceName || '',
-        address: initialValues.address || '',
-        receiver: initialValues.receiver || '',
-        executor: initialValues.executor || 'Не определен',
-        countType: initialValues.countType || 'hours',
-        hours: initialValues.hours || '',
-        trips: initialValues.trips || '',
-        unit: initialValues.unit || 'часов',
-        price: initialValues.price || '',
-        clientName: initialValues.clientName || '',
-        clientPrice: initialValues.clientPrice || '',
+        id: initialData.id,
+        date: initialData.date || getDefault2026Date(),
+        toTime: initialData.toTime || '18:00',
+        serviceName: initialData.serviceName || '',
+        address: initialData.address || '',
+        receiver: initialData.receiver || '',
+        executor: initialData.executor || 'Не определен',
+        countType: initialData.countType || 'hours',
+        hours: initialData.hours || '',
+        trips: initialData.trips || '',
+        unit: initialData.unit || 'часов',
+        price: initialData.price || '',
+        clientName: initialData.clientName || '',
+        clientPrice: initialData.clientPrice || '',
       });
-    } else if (mode === 'create') {
+    } else {
       reset({
         id: Date.now(),
         date: getDefault2026Date(),
@@ -77,9 +80,9 @@ export default function ServiceForm({
         clientPrice: '',
       });
     }
-  }, [mode, initialValues, reset]);
+  }, [editingId, initialData, reset]);
 
-  const onSubmit = (data) => {
+  const onFormSubmit = (data) => {
     const prepared = {
       ...data,
       hours: data.hours ? Number(data.hours) : '',
@@ -87,8 +90,11 @@ export default function ServiceForm({
       price: data.price ? Number(data.price) : '',
       clientPrice: data.clientPrice ? Number(data.clientPrice) : '',
     };
-    onAdd(prepared);
-    if (mode === 'create') {
+
+    if (editingId) {
+      onUpdate({ ...prepared, id: editingId });
+    } else {
+      onSubmit(prepared);
       reset({
         id: Date.now(),
         date: getDefault2026Date(),
@@ -112,10 +118,9 @@ export default function ServiceForm({
     <div className="card">
       <h2 className="card-title">Заявка на услугу</h2>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Шапка */}
+      <form onSubmit={handleSubmit(onFormSubmit)}>
         <div className="form-section">
-          <div className="form-section-title">Шапка</div>
+          <div className="form-section-title">Основное</div>
           <div className="form-grid">
             <div className="form-row">
               <label className="form-label">Дата</label>
@@ -130,7 +135,7 @@ export default function ServiceForm({
             </div>
 
             <div className="form-row">
-              <label className="form-label">Время до</label>
+              <label className="form-label">К которому часу</label>
               <input
                 type="time"
                 className="form-input"
@@ -144,23 +149,7 @@ export default function ServiceForm({
                 type="text"
                 className="form-input"
                 {...register('serviceName', { required: true })}
-                placeholder="Уборка снега"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Данные клиента */}
-        <div className="form-section">
-          <div className="form-section-title">Данные клиента</div>
-          <div className="form-grid">
-            <div className="form-row">
-              <label className="form-label">Клиент</label>
-              <input
-                type="text"
-                className="form-input"
-                {...register('clientName')}
-                placeholder="ООО Клиент"
+                placeholder="Например, Услуги самосвала"
               />
             </div>
 
@@ -170,7 +159,7 @@ export default function ServiceForm({
                 type="text"
                 className="form-input"
                 {...register('address', { required: true })}
-                placeholder="Адрес работ"
+                placeholder="Адрес"
               />
             </div>
 
@@ -183,22 +172,11 @@ export default function ServiceForm({
                 placeholder="Имя и телефон"
               />
             </div>
-
-            <div className="form-row">
-              <label className="form-label">Цена клиенту за единицу</label>
-              <input
-                type="number"
-                className="form-input"
-                {...register('clientPrice')}
-                placeholder="например, 3000"
-              />
-            </div>
           </div>
         </div>
 
-        {/* Данные исполнителя */}
         <div className="form-section">
-          <div className="form-section-title">Данные исполнителя</div>
+          <div className="form-section-title">Исполнитель</div>
           <div className="form-grid">
             <div className="form-row">
               <label className="form-label">Исполнитель</label>
@@ -214,8 +192,8 @@ export default function ServiceForm({
             <div className="form-row">
               <label className="form-label">Тип учета</label>
               <select className="form-input" {...register('countType')}>
-                <option value="hours">по часам</option>
-                <option value="trips">по рейсам</option>
+                <option value="hours">Часы</option>
+                <option value="trips">Рейсы</option>
               </select>
             </div>
 
@@ -226,7 +204,7 @@ export default function ServiceForm({
                   type="number"
                   className="form-input"
                   {...register('hours')}
-                  placeholder="Например, 4"
+                  placeholder="Например, 8"
                 />
               </div>
             ) : (
@@ -242,20 +220,60 @@ export default function ServiceForm({
             )}
 
             <div className="form-row">
-              <label className="form-label">Цена исполнителю за единицу</label>
+              <label className="form-label">
+                Цена исполнителю ({countType === 'hours' ? 'р/час' : 'р/рейс'})
+              </label>
               <input
                 type="number"
                 className="form-input"
                 {...register('price')}
-                placeholder="например, 2500"
+                placeholder="Например, 2000"
               />
             </div>
           </div>
         </div>
 
-        <button type="submit" className="primary-btn">
-          {mode === 'edit' ? 'Сохранить изменения' : 'Сформировать заявку'}
-        </button>
+        <div className="form-section">
+          <div className="form-section-title">Клиент</div>
+          <div className="form-grid">
+            <div className="form-row">
+              <label className="form-label">Клиент</label>
+              <input
+                type="text"
+                className="form-input"
+                {...register('clientName')}
+                placeholder="ООО Ромашка"
+              />
+            </div>
+
+            <div className="form-row">
+              <label className="form-label">
+                Цена клиенту ({countType === 'hours' ? 'р/час' : 'р/рейс'})
+              </label>
+              <input
+                type="number"
+                className="form-input"
+                {...register('clientPrice')}
+                placeholder="Например, 2500"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="submit" className="primary-btn">
+            {editingId ? 'Сохранить изменения' : 'Сформировать заявку'}
+          </button>
+          {editingId && (
+            <button
+              type="button"
+              className="secondary-btn"
+              onClick={onCancelEdit}
+            >
+              Отмена
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

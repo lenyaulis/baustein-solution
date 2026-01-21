@@ -62,12 +62,20 @@ function AllRequestsPage({
 
       {/* Заявки исполнителю */}
       <h2 style={{ fontSize: 15, marginBottom: 8 }}>Заявки исполнителю</h2>
-      <ul className="list">
+
+      <div
+        className="requests-grid"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: 10,
+          marginBottom: 16,
+        }}
+      >
         {mat.map((r) => (
-          <li
+          <div
             key={`mat-${r.id}`}
             style={{
-              marginBottom: 8,
               padding: '8px 10px',
               borderRadius: 8,
               border: '1px solid #e5e7eb',
@@ -76,28 +84,34 @@ function AllRequestsPage({
               display: 'flex',
               flexDirection: 'column',
               gap: 4,
-              fontSize: 13,
+              fontSize: 12,
             }}
           >
             <Tag variant="material">Материал</Tag>
-            <div>
+            <div style={{ fontWeight: 500 }}>
               {r.date} — {r.quarry}
             </div>
-            <div>{r.address}</div>
-            <div>
-              {r.material} — {r.volume} {r.unit} — {r.fromTime}-{r.toTime}
+            <div style={{ color: '#4b5563' }}>{r.address}</div>
+            <div style={{ color: '#374151' }}>
+              {r.material} — {r.volume} {r.unit}
             </div>
-            <div>Принимающий: {r.receiver}</div>
-            <div>Клиент: {r.clientName || '—'}</div>
-            <div>Исполнитель: {r.executor || 'Не определен'}</div>
-          </li>
+            <div style={{ color: '#6b7280' }}>
+              Окно: {r.fromTime}-{r.toTime}
+            </div>
+            <div style={{ color: '#6b7280' }}>Принимающий: {r.receiver}</div>
+            <div style={{ color: '#6b7280' }}>
+              Клиент: {r.clientName || '—'}
+            </div>
+            <div style={{ color: '#6b7280' }}>
+              Исполнитель: {r.executor || 'Не определен'}
+            </div>
+          </div>
         ))}
 
         {srv.map((r) => (
-          <li
+          <div
             key={`srv-${r.id}`}
             style={{
-              marginBottom: 8,
               padding: '8px 10px',
               borderRadius: 8,
               border: '1px solid #e5e7eb',
@@ -106,29 +120,32 @@ function AllRequestsPage({
               display: 'flex',
               flexDirection: 'column',
               gap: 4,
-              fontSize: 13,
+              fontSize: 12,
             }}
           >
             <Tag variant="service">Услуга</Tag>
-            <div>{r.date}</div>
-            <div>{r.serviceName}</div>
-            <div>{r.address}</div>
-            <div>Принимающий: {r.receiver}</div>
-            <div>Клиент: {r.clientName || '—'}</div>
-            <div>
+            <div style={{ fontWeight: 500 }}>{r.date}</div>
+            <div style={{ color: '#374151' }}>{r.serviceName}</div>
+            <div style={{ color: '#4b5563' }}>{r.address}</div>
+            <div style={{ color: '#6b7280' }}>Принимающий: {r.receiver}</div>
+            <div style={{ color: '#6b7280' }}>
+              Клиент: {r.clientName || '—'}
+            </div>
+            <div style={{ color: '#374151' }}>
               {r.countType === 'hours'
                 ? `${r.hours} ч`
                 : `${r.trips} рейсов`}
             </div>
-            <div>Исполнитель: {r.executor || 'Не определен'}</div>
-          </li>
+            <div style={{ color: '#6b7280' }}>
+              Исполнитель: {r.executor || 'Не определен'}
+            </div>
+          </div>
         ))}
 
         {pik.map((r) => (
-          <li
+          <div
             key={`pik-${r.id}`}
             style={{
-              marginBottom: 8,
               padding: '8px 10px',
               borderRadius: 8,
               border: '1px solid #e5e7eb',
@@ -137,42 +154,55 @@ function AllRequestsPage({
               display: 'flex',
               flexDirection: 'column',
               gap: 4,
-              fontSize: 13,
+              fontSize: 12,
             }}
           >
             <Tag variant="pickup">Самовывоз</Tag>
-            <div>
+            <div style={{ fontWeight: 500 }}>
               {r.date} — {r.quarry}
             </div>
-            <div>{r.material}</div>
-            <div>Клиент: {r.clientName || '—'}</div>
-            <div>
+            <div style={{ color: '#374151' }}>{r.material}</div>
+            <div style={{ color: '#6b7280' }}>
+              Клиент: {r.clientName || '—'}
+            </div>
+            <div style={{ color: '#374151' }}>
               Объем: {r.volume} {r.clientUnit}
             </div>
-            <div>
+            <div style={{ color: '#6b7280' }}>
               Водитель: {r.driverLastName || '—'}; {r.truckBrand}{' '}
               {r.truckNumber}
             </div>
-          </li>
+          </div>
         ))}
 
-        {mat.length === 0 &&
-          srv.length === 0 &&
-          pik.length === 0 && (
-            <li style={{ fontSize: 13, color: '#9ca3af' }}>
-              На эту дату заявок исполнителю нет.
-            </li>
-          )}
-      </ul>
+        {mat.length === 0 && srv.length === 0 && pik.length === 0 && (
+          <div
+            style={{
+              fontSize: 13,
+              color: '#9ca3af',
+              padding: 8,
+            }}
+          >
+            На эту дату заявок исполнителю нет.
+          </div>
+        )}
+      </div>
 
       {/* Заявки карьерам */}
       <h2 style={{ fontSize: 15, margin: '12px 0 8px' }}>Заявки карьерам</h2>
-      <ul className="list">
+
+      <div
+        className="requests-grid"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: 10,
+        }}
+      >
         {qrr.map((q) => (
-          <li
+          <div
             key={`qr-${q.id}`}
             style={{
-              marginBottom: 8,
               padding: '8px 10px',
               borderRadius: 8,
               border: '1px solid #e5e7eb',
@@ -181,29 +211,35 @@ function AllRequestsPage({
               display: 'flex',
               flexDirection: 'column',
               gap: 4,
-              fontSize: 13,
+              fontSize: 12,
             }}
           >
             <Tag variant="quarry">Карьер</Tag>
-            <div>
+            <div style={{ fontWeight: 500 }}>
               {q.date} — {q.quarry}
             </div>
-            <div>
+            <div style={{ color: '#374151' }}>
               {q.material} — {q.driverLastName}
             </div>
-            <div>
+            <div style={{ color: '#6b7280' }}>
               {q.truckNumber} ({q.truckBrand}) — {q.volume} {q.unit} —{' '}
               {q.trips} рейсов
             </div>
-          </li>
+          </div>
         ))}
 
         {qrr.length === 0 && (
-          <li style={{ fontSize: 13, color: '#9ca3af' }}>
+          <div
+            style={{
+              fontSize: 13,
+              color: '#9ca3af',
+              padding: 8,
+            }}
+          >
             На эту дату заявок карьерам нет.
-          </li>
+          </div>
         )}
-      </ul>
+      </div>
     </div>
   );
 }

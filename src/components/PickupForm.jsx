@@ -1,3 +1,4 @@
+// src/components/PickupForm.jsx
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -8,124 +9,118 @@ function getDefault2026Date() {
   return `2026-${m}-${d}`;
 }
 
-// единица измерения для карьера/поставщика по названию
-function getQuarryUnitByName(name) {
-  const n = (name || '').toLowerCase();
-  if (n.includes('северка')) return 'тонны';
-  if (n.includes('шабры')) return 'м3';
-  if (n.includes('шитовской')) return 'м3';
-  if (n.includes('горнощит')) return 'тонны';
-  if (n.includes('седельник')) return 'тонны';
-  if (n.includes('билимбай')) return 'тонны';
-  if (n.includes('паритет')) return 'м3';
-  if (n.includes('светлая речка')) return 'м3';
-  return '';
-}
-
-export default function PickupForm({ onAdd, mode = 'create', initialValues }) {
+export default function PickupForm({
+  onSubmit,
+  onUpdate,
+  onCancelEdit,
+  editingId,
+  initialData,
+}) {
   const {
     register,
     handleSubmit,
     reset,
-    watch,
-    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      id: initialValues?.id || Date.now(),
-      date: initialValues?.date || getDefault2026Date(),
-      quarry: initialValues?.quarry || '',
-      material: initialValues?.material || '',
-      clientName: initialValues?.clientName || '',
-      volume: initialValues?.volume || '',
-      clientUnit: initialValues?.clientUnit || 'т',
-      clientPrice: initialValues?.clientPrice || '',
-      driverLastName: initialValues?.driverLastName || '',
-      truckNumber: initialValues?.truckNumber || '',
-      truckBrand: initialValues?.truckBrand || '',
-      quarryPrice: initialValues?.quarryPrice || '',
-      quarryUnit: initialValues?.quarryUnit || '',
+      id: initialData?.id || Date.now(),
+      date: initialData?.date || getDefault2026Date(),
+      quarry: initialData?.quarry || '',
+      material: initialData?.material || '',
+      volume: initialData?.volume || '',
+      clientUnit: initialData?.clientUnit || 'м3',
+      clientName: initialData?.clientName || '',
+      driverLastName: initialData?.driverLastName || '',
+      truckBrand: initialData?.truckBrand || '',
+      truckNumber: initialData?.truckNumber || '',
+      // НОВОЕ:
+      buyPrice:
+        initialData?.buyPrice !== undefined && initialData?.buyPrice !== null
+          ? String(initialData.buyPrice)
+          : '',
+      sellPrice:
+        initialData?.sellPrice !== undefined && initialData?.sellPrice !== null
+          ? String(initialData.sellPrice)
+          : '',
     },
   });
 
-  const quarryValue = watch('quarry');
-
   useEffect(() => {
-    const unit = getQuarryUnitByName(quarryValue);
-    setValue('quarryUnit', unit);
-  }, [quarryValue, setValue]);
-
-  useEffect(() => {
-    if (mode === 'edit' && initialValues) {
+    if (editingId && initialData) {
       reset({
-        id: initialValues.id,
-        date: initialValues.date || getDefault2026Date(),
-        quarry: initialValues.quarry || '',
-        material: initialValues.material || '',
-        clientName: initialValues.clientName || '',
-        volume: initialValues.volume || '',
-        clientUnit: initialValues.clientUnit || 'т',
-        clientPrice: initialValues.clientPrice || '',
-        driverLastName: initialValues.driverLastName || '',
-        truckNumber: initialValues.truckNumber || '',
-        truckBrand: initialValues.truckBrand || '',
-        quarryPrice: initialValues.quarryPrice || '',
-        quarryUnit: initialValues.quarryUnit || '',
+        id: initialData.id,
+        date: initialData.date || getDefault2026Date(),
+        quarry: initialData.quarry || '',
+        material: initialData.material || '',
+        volume: initialData.volume || '',
+        clientUnit: initialData.clientUnit || 'м3',
+        clientName: initialData.clientName || '',
+        driverLastName: initialData.driverLastName || '',
+        truckBrand: initialData.truckBrand || '',
+        truckNumber: initialData.truckNumber || '',
+        buyPrice:
+          initialData.buyPrice !== undefined && initialData.buyPrice !== null
+            ? String(initialData.buyPrice)
+            : '',
+        sellPrice:
+          initialData.sellPrice !== undefined && initialData.sellPrice !== null
+            ? String(initialData.sellPrice)
+            : '',
       });
-    } else if (mode === 'create') {
+    } else {
       reset({
         id: Date.now(),
         date: getDefault2026Date(),
         quarry: '',
         material: '',
-        clientName: '',
         volume: '',
-        clientUnit: 'т',
-        clientPrice: '',
+        clientUnit: 'м3',
+        clientName: '',
         driverLastName: '',
-        truckNumber: '',
         truckBrand: '',
-        quarryPrice: '',
-        quarryUnit: '',
+        truckNumber: '',
+        buyPrice: '',
+        sellPrice: '',
       });
     }
-  }, [mode, initialValues, reset]);
+  }, [editingId, initialData, reset]);
 
-  const onSubmit = (data) => {
+  const onFormSubmit = (data) => {
     const prepared = {
       ...data,
       volume: data.volume ? Number(data.volume) : '',
-      clientPrice: data.clientPrice ? Number(data.clientPrice) : '',
-      quarryPrice: data.quarryPrice ? Number(data.quarryPrice) : '',
+      buyPrice: data.buyPrice ? Number(data.buyPrice) : null,
+      sellPrice: data.sellPrice ? Number(data.sellPrice) : null,
     };
-    onAdd(prepared);
-    if (mode === 'create') {
+
+    if (editingId) {
+      onUpdate({ ...prepared, id: editingId });
+    } else {
+      onSubmit(prepared);
       reset({
         id: Date.now(),
         date: getDefault2026Date(),
         quarry: '',
         material: '',
-        clientName: '',
         volume: '',
-        clientUnit: 'т',
-        clientPrice: '',
+        clientUnit: 'м3',
+        clientName: '',
         driverLastName: '',
-        truckNumber: '',
         truckBrand: '',
-        quarryPrice: '',
-        quarryUnit: '',
+        truckNumber: '',
+        buyPrice: '',
+        sellPrice: '',
       });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="card">
-        <h2 className="card-title">Самовывоз</h2>
+    <div className="card">
+      <h2 className="card-title">Самовывоз</h2>
 
-        {/* Шапка */}
+      <form onSubmit={handleSubmit(onFormSubmit)}>
         <div className="form-section">
-          <div className="form-section-title">Шапка</div>
+          <div className="form-section-title">Основное</div>
           <div className="form-grid">
             <div className="form-row">
               <label className="form-label">Дата</label>
@@ -155,61 +150,36 @@ export default function PickupForm({ onAdd, mode = 'create', initialValues }) {
                 type="text"
                 className="form-input"
                 {...register('material', { required: true })}
-                placeholder="Щебень 5–20"
+                placeholder="Щебень, ПГС..."
               />
             </div>
-          </div>
-        </div>
 
-        {/* Данные клиента */}
-        <div className="form-section">
-          <div className="form-section-title">Данные клиента</div>
-          <div className="form-grid">
+            <div className="form-row">
+              <label className="form-label">Объем</label>
+              <div className="form-inline">
+                <input
+                  type="number"
+                  className="form-input"
+                  {...register('volume', { required: true })}
+                  placeholder="Например, 20"
+                />
+                <select className="form-input" {...register('clientUnit')}>
+                  <option value="м3">м3</option>
+                  <option value="т">т</option>
+                </select>
+              </div>
+            </div>
+
             <div className="form-row">
               <label className="form-label">Клиент</label>
               <input
                 type="text"
                 className="form-input"
                 {...register('clientName')}
-                placeholder="ООО Клиент"
+                placeholder="ООО Ромашка"
               />
             </div>
 
-            <div className="form-row">
-              <label className="form-label">Объем (клиент)</label>
-              <div className="form-inline">
-                <input
-                  type="number"
-                  className="form-input"
-                  {...register('volume')}
-                  placeholder="Например, 20"
-                />
-                <select
-                  className="form-input"
-                  {...register('clientUnit')}
-                >
-                  <option value="т">тонны</option>
-                  <option value="м3">м3</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="form-row">
-              <label className="form-label">Цена клиенту за единицу</label>
-              <input
-                type="number"
-                className="form-input"
-                {...register('clientPrice')}
-                placeholder="например, 1500"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Водитель и ТС */}
-        <div className="form-section">
-          <div className="form-section-title">Водитель и ТС</div>
-          <div className="form-grid">
             <div className="form-row">
               <label className="form-label">Фамилия водителя</label>
               <input
@@ -221,58 +191,69 @@ export default function PickupForm({ onAdd, mode = 'create', initialValues }) {
             </div>
 
             <div className="form-row">
-              <label className="form-label">Номер ТС</label>
-              <input
-                type="text"
-                className="form-input"
-                {...register('truckNumber')}
-                placeholder="А123ВС 66"
-              />
+              <label className="form-label">Автомобиль</label>
+              <div className="form-inline">
+                <input
+                  type="text"
+                  className="form-input"
+                  {...register('truckBrand')}
+                  placeholder="Марка"
+                />
+                <input
+                  type="text"
+                  className="form-input"
+                  {...register('truckNumber')}
+                  placeholder="Гос. номер"
+                />
+              </div>
             </div>
 
+            {/* НОВЫЕ ПОЛЯ: цены */}
             <div className="form-row">
-              <label className="form-label">Марка ТС</label>
-              <input
-                type="text"
-                className="form-input"
-                {...register('truckBrand')}
-                placeholder="КамАЗ"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Карьер / поставщик */}
-        <div className="form-section">
-          <div className="form-section-title">Карьер / поставщик</div>
-          <div className="form-grid">
-            <div className="form-row">
-              <label className="form-label">Цена карьеру за единицу</label>
+              <label className="form-label">
+                Цена покупки, ₽ за единицу
+              </label>
               <input
                 type="number"
                 className="form-input"
-                {...register('quarryPrice')}
-                placeholder="например, 900"
+                {...register('buyPrice')}
+                placeholder="Например, 500"
+                min="0"
+                step="1"
               />
             </div>
 
             <div className="form-row">
-              <label className="form-label">Ед. изм. карьера</label>
+              <label className="form-label">
+                Цена продажи, ₽ за единицу
+              </label>
               <input
-                type="text"
+                type="number"
                 className="form-input"
-                {...register('quarryUnit')}
-                disabled
-                placeholder="авто выбирается по карьеру"
+                {...register('sellPrice')}
+                placeholder="Например, 800"
+                min="0"
+                step="1"
               />
             </div>
           </div>
         </div>
 
-        <button type="submit" className="primary-btn">
-          {mode === 'edit' ? 'Сохранить изменения' : 'Сформировать заявку'}
-        </button>
-      </div>
-    </form>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="submit" className="primary-btn">
+            {editingId ? 'Сохранить изменения' : 'Сформировать заявку'}
+          </button>
+          {editingId && (
+            <button
+              type="button"
+              className="secondary-btn"
+              onClick={onCancelEdit}
+            >
+              Отмена
+            </button>
+          )}
+        </div>
+      </form>
+    </div>
   );
 }

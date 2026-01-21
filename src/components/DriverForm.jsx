@@ -1,3 +1,4 @@
+// src/components/DriverForm.jsx
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -9,10 +10,12 @@ function getDefault2026Date() {
 }
 
 export default function DriverForm({
-  onAdd,
+  onSubmit,          // create
+  onUpdate,          // edit
+  onCancelEdit,
+  editingId,
+  initialData,
   executors = [],
-  mode = 'create', // 'create' | 'edit'
-  initialValues,
 }) {
   const {
     register,
@@ -22,50 +25,48 @@ export default function DriverForm({
     formState: { errors },
   } = useForm({
     defaultValues: {
-      id: initialValues?.id || Date.now(),
-      date: initialValues?.date || getDefault2026Date(),
-      fromTime: initialValues?.fromTime || '09:00',
-      toTime: initialValues?.toTime || '18:00',
-      quarry: initialValues?.quarry || '',
-      material: initialValues?.material || '',
-      volume: initialValues?.volume || '',
-      unit: initialValues?.unit || 'т', // ед. клиента
-      address: initialValues?.address || '',
-      receiver: initialValues?.receiver || '',
-      executor: initialValues?.executor || 'Не определен',
-      trips: initialValues?.trips || '',
-      pricePerTrip: initialValues?.pricePerTrip || '',
-      // клиент
-      clientName: initialValues?.clientName || '',
-      clientPrice: initialValues?.clientPrice || '',
-      // карьер / поставщик
-      quarryPrice: initialValues?.quarryPrice || '',
+      id: initialData?.id || Date.now(),
+      date: initialData?.date || getDefault2026Date(),
+      fromTime: initialData?.fromTime || '09:00',
+      toTime: initialData?.toTime || '18:00',
+      quarry: initialData?.quarry || '',
+      material: initialData?.material || '',
+      volume: initialData?.volume || '',
+      unit: initialData?.unit || 'т',
+      address: initialData?.address || '',
+      receiver: initialData?.receiver || '',
+      executor: initialData?.executor || 'Не определен',
+      trips: initialData?.trips || '',
+      pricePerTrip: initialData?.pricePerTrip || '',
+      clientName: initialData?.clientName || '',
+      clientPrice: initialData?.clientPrice || '',
+      quarryPrice: initialData?.quarryPrice || '',
     },
   });
 
   const unit = watch('unit');
 
   useEffect(() => {
-    if (mode === 'edit' && initialValues) {
+    if (editingId && initialData) {
       reset({
-        id: initialValues.id,
-        date: initialValues.date || getDefault2026Date(),
-        fromTime: initialValues.fromTime || '09:00',
-        toTime: initialValues.toTime || '18:00',
-        quarry: initialValues.quarry || '',
-        material: initialValues.material || '',
-        volume: initialValues.volume || '',
-        unit: initialValues.unit || 'т',
-        address: initialValues.address || '',
-        receiver: initialValues.receiver || '',
-        executor: initialValues.executor || 'Не определен',
-        trips: initialValues.trips || '',
-        pricePerTrip: initialValues.pricePerTrip || '',
-        clientName: initialValues.clientName || '',
-        clientPrice: initialValues.clientPrice || '',
-        quarryPrice: initialValues.quarryPrice || '',
+        id: initialData.id,
+        date: initialData.date || getDefault2026Date(),
+        fromTime: initialData.fromTime || '09:00',
+        toTime: initialData.toTime || '18:00',
+        quarry: initialData.quarry || '',
+        material: initialData.material || '',
+        volume: initialData.volume || '',
+        unit: initialData.unit || 'т',
+        address: initialData.address || '',
+        receiver: initialData.receiver || '',
+        executor: initialData.executor || 'Не определен',
+        trips: initialData.trips || '',
+        pricePerTrip: initialData.pricePerTrip || '',
+        clientName: initialData.clientName || '',
+        clientPrice: initialData.clientPrice || '',
+        quarryPrice: initialData.quarryPrice || '',
       });
-    } else if (mode === 'create') {
+    } else {
       reset({
         id: Date.now(),
         date: getDefault2026Date(),
@@ -85,9 +86,9 @@ export default function DriverForm({
         quarryPrice: '',
       });
     }
-  }, [mode, initialValues, reset]);
+  }, [editingId, initialData, reset]);
 
-  const onSubmit = (data) => {
+  const onFormSubmit = (data) => {
     const prepared = {
       ...data,
       volume: data.volume ? Number(data.volume) : '',
@@ -96,8 +97,11 @@ export default function DriverForm({
       clientPrice: data.clientPrice ? Number(data.clientPrice) : '',
       quarryPrice: data.quarryPrice ? Number(data.quarryPrice) : '',
     };
-    onAdd(prepared);
-    if (mode === 'create') {
+
+    if (editingId) {
+      onUpdate({ ...prepared, id: editingId });
+    } else {
+      onSubmit(prepared);
       reset({
         id: Date.now(),
         date: getDefault2026Date(),
@@ -123,7 +127,7 @@ export default function DriverForm({
     <div className="card">
       <h2 className="card-title">Заявка на материал</h2>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onFormSubmit)}>
         {/* Шапка */}
         <div className="form-section">
           <div className="form-section-title">Шапка</div>
@@ -295,9 +299,20 @@ export default function DriverForm({
           </div>
         </div>
 
-        <button type="submit" className="primary-btn">
-          {mode === 'edit' ? 'Сохранить изменения' : 'Сформировать заявку'}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="submit" className="primary-btn">
+            {editingId ? 'Сохранить изменения' : 'Сформировать заявку'}
+          </button>
+          {editingId && (
+            <button
+              type="button"
+              className="secondary-btn"
+              onClick={onCancelEdit}
+            >
+              Отмена
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );
