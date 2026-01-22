@@ -6,6 +6,9 @@ import RequestsPage from './pages/RequestsPage';
 import ReportsPageInner from './pages/ReportsPageInner';
 import AllRequestsPage from './pages/AllRequestsPage';
 import RemindersPage from './pages/RemindersPage';
+import DocumentsPage from './pages/DocumentsPage';
+import MapPage from './pages/MapPage';
+import ContactsPage from './pages/ContactsPage';
 import { useRequestsStore } from './hooks/useRequestsStore';
 import { useRemindersStore } from './hooks/useRemindersStore';
 
@@ -41,6 +44,13 @@ function App() {
               <div className="app-header-title-main">Бауштайн.Решения</div>
             </div>
           </div>
+
+          <div className="app-header-user">
+            <span className="app-header-user-email">operator@baustein.local</span>
+            <button className="app-header-logout-btn" type="button">
+              Выйти
+            </button>
+          </div>
         </div>
       </header>
 
@@ -49,15 +59,27 @@ function App() {
         <aside className="sidebar">
           <div className="sidebar-title">Меню</div>
           <nav className="sidebar-nav">
+            {/* 1. Карта */}
+            <NavLink
+              to="/map"
+              className={({ isActive }) =>
+                'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
+              }
+            >
+              Карта
+            </NavLink>
+
+            {/* 2. Новая заявка */}
             <NavLink
               to="/requests/drivers"
               className={({ isActive }) =>
                 'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
               }
             >
-              Заявки
+              Новая заявка
             </NavLink>
 
+            {/* 3. Все заявки */}
             <NavLink
               to="/all-requests"
               className={({ isActive }) =>
@@ -67,24 +89,17 @@ function App() {
               Все заявки
             </NavLink>
 
+            {/* 3. Контакты */}
             <NavLink
-              to="/registries/quarries"
+              to="/contacts"
               className={({ isActive }) =>
                 'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
               }
             >
-              Реестры карьеров
+              Контакты
             </NavLink>
 
-            <NavLink
-              to="/reports"
-              className={({ isActive }) =>
-                'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
-              }
-            >
-              Отчеты
-            </NavLink>
-
+            {/* 4. Напоминания */}
             <NavLink
               to="/reminders"
               className={({ isActive }) =>
@@ -113,6 +128,37 @@ function App() {
               )}
             </NavLink>
 
+            {/* 5. Документы на выдачу */}
+            <NavLink
+              to="/documents"
+              className={({ isActive }) =>
+                'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
+              }
+            >
+              Документы на выдачу
+            </NavLink>
+
+            {/* 6. Отчеты */}
+            <NavLink
+              to="/reports"
+              className={({ isActive }) =>
+                'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
+              }
+            >
+              Отчеты
+            </NavLink>
+
+            {/* 7. Реестры карьеров */}
+            <NavLink
+              to="/registries/quarries"
+              className={({ isActive }) =>
+                'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
+              }
+            >
+              Реестры карьеров
+            </NavLink>
+
+            {/* 8. Справка */}
             <NavLink
               to="/help"
               className={({ isActive }) =>
@@ -156,10 +202,7 @@ function App() {
           )}
 
           <Routes>
-            <Route
-              path="/"
-              element={<Navigate to="/requests/drivers" replace />}
-            />
+            <Route path="/" element={<Navigate to="/requests/drivers" replace />} />
 
             <Route
               path="/requests/*"
@@ -195,10 +238,13 @@ function App() {
               }
             />
 
-            <Route
-              path="/registries/quarries"
-              element={<QuarryRegistriesPage />}
-            />
+            <Route path="/documents" element={<DocumentsPage />} />
+
+            <Route path="/map" element={<MapPage />} />
+
+            <Route path="/contacts" element={<ContactsPage />} />
+
+            <Route path="/registries/quarries" element={<QuarryRegistriesPage />} />
 
             <Route
               path="/reports"
@@ -221,7 +267,7 @@ function App() {
       {/* Плашка снизу */}
       <footer className="app-footer">
         <div className="app-footer-inner">
-          Приложение еще в разработке. Разработано by Ulis. Почта:{' '}
+          Приложение еще в разработке. Разработано by Ulis. Почта:
           <a href="mailto:s3ko2000@yandex.ru"> s3ko2000@yandex.ru</a>. 13.01.2026
         </div>
       </footer>

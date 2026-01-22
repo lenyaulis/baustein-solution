@@ -33,32 +33,48 @@ function AllRequestsPage({
     <div>
       <h1 style={{ margin: 0, marginBottom: 20 }}>Все заявки</h1>
 
-      <Card>
-        <div
-          className="form-section"
-          style={{ borderTop: 'none', paddingTop: 0, marginTop: 0 }}
-        >
-          <div className="form-section-title">Дата</div>
+      {/* Блок выбора даты — узкая карточка с отступами */}
+      <div
+        style={{
+          marginBottom: 16,
+          maxWidth: 360,
+        }}
+      >
+        <Card>
           <div
+            className="form-section"
             style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 12,
-              alignItems: 'flex-end',
+              borderTop: 'none',
+              paddingTop: 8,
+              marginTop: 0,
+              paddingLeft: 12,
+              paddingRight: 12,
+              paddingBottom: 12,
             }}
           >
-            <div className="form-row" style={{ maxWidth: 220 }}>
+            <div className="form-section-title">Дата</div>
+
+            <div
+              className="form-row"
+              style={{
+                maxWidth: 160,          // поле в 2 раза уже
+              }}
+            >
               <label className="form-label">Показать заявки за дату</label>
               <input
                 type="date"
                 className="form-input"
+                style={{
+                  width: '100%',
+                }}
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
               />
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
+
 
       {/* Заявки исполнителю */}
       <h2 style={{ fontSize: 15, marginBottom: 8 }}>Заявки исполнителю</h2>
@@ -189,7 +205,9 @@ function AllRequestsPage({
       </div>
 
       {/* Заявки карьерам */}
-      <h2 style={{ fontSize: 15, margin: '12px 0 8px' }}>Заявки карьерам</h2>
+      <h2 style={{ fontSize: 15, margin: '12px 0 8px' }}>
+        Заявки карьерам
+      </h2>
 
       <div
         className="requests-grid"

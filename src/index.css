@@ -43,6 +43,9 @@ a:hover {
 /* ===== шапка ===== */
 
 .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   background: var(--bau-orange);
   color: var(--bau-white);
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
@@ -53,7 +56,7 @@ a:hover {
   padding: 12px 20px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
 }
 
 .app-logo-block {
@@ -96,6 +99,30 @@ a:hover {
 .app-header-title-sub {
   font-size: 12px;
   color: #9ca3af;
+}
+
+/* блок логина и выхода */
+
+.app-header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--bau-white);
+}
+
+.app-header-user-email {
+  opacity: 0.9;
+}
+
+.app-header-logout-btn {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: transparent;
+  color: var(--bau-white);
+  font-size: 12px;
+  cursor: pointer;
 }
 
 /* ===== нижняя плашка ===== */
@@ -251,24 +278,24 @@ a:hover {
   color: #6b7280;
 }
 
-/* ===== инпуты (обновлено, чтобы выглядели легче) ===== */
+/* ===== инпуты ===== */
 
 .form-input,
 .field input,
 .field textarea,
 .field select {
   width: 100%;
-  padding: 6px 9px;              /* было 7px 10px — чуть ниже и уже */
-  border-radius: 8px;            /* было 10px — более компактный радиус */
+  padding: 6px 9px;
+  border-radius: 8px;
   border: 1px solid #d1d5db;
   background: #f9fafb;
-  font-size: 13px;               /* было 14px */
+  font-size: 13px;
   box-sizing: border-box;
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease,
     background-color 0.15s ease;
-  box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03); /* лёгкая тень */
+  box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03);
 }
 
 .form-input:focus,
@@ -287,8 +314,6 @@ select.form-input {
   padding-right: 6px;
 }
 
-/* если textarea использует .field textarea — уже попадает выше;
-   если где-то есть .textarea, можно добавить: */
 .textarea {
   width: 100%;
   padding: 6px 9px;
@@ -309,7 +334,7 @@ select.form-input {
   background: #ffffff;
 }
 
-/* ===== инлайн-группы (объем + ед., время) ===== */
+/* ===== инлайн-группы ===== */
 
 .form-inline {
   display: flex;
@@ -429,7 +454,7 @@ select.form-input {
   background: #f3f4f6;
 }
 
-/* Кнопки внутри списка (копировать/удалить/редактировать/Telegram) */
+/* Кнопки внутри списка */
 
 .list > li button.primary-btn {
   box-shadow: none;
@@ -444,7 +469,7 @@ select.form-input {
   box-shadow: none;
 }
 
-/* ===== вспомогательное: .field (если используется в формах) ===== */
+/* ===== вспомогательное: .field ===== */
 
 .field {
   display: flex;
