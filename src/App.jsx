@@ -16,7 +16,6 @@ import OverdueReminderBanner from './components/reminders/OverdueReminderBanner'
 import ImportContactsPage from './pages/ImportContactsPage';
 import AdminResetMap from './pages/AdminResetMap';
 
-
 function App() {
   const {
     driverMaterialRequests,
@@ -37,20 +36,21 @@ function App() {
     updateRequest,
   } = useRequestsStore();
 
-  const {
-    activeRemindersCount,
-    reminders,
-  } = useRemindersStore();
+  const { activeRemindersCount } = useRemindersStore();
 
   const [showOverdueBanner, setShowOverdueBanner] = useState(false);
-
   const hasOverdue = activeRemindersCount > 0;
+
+  // новый стейт для мобильного меню
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (hasOverdue) {
       setShowOverdueBanner(true);
     }
   }, [hasOverdue]);
+
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <div className="app-root">
@@ -68,8 +68,19 @@ function App() {
             </div>
           </div>
 
+          {/* Кнопка меню (мобилка) */}
+          <button
+            type="button"
+            className="app-mobile-menu-btn"
+            onClick={() => setIsMobileMenuOpen((v) => !v)}
+          >
+            Меню
+          </button>
+
           <div className="app-header-user">
-            <span className="app-header-user-email">operator@baustein.local</span>
+            <span className="app-header-user-email">
+              operator@baustein.local
+            </span>
             <button className="app-header-logout-btn" type="button">
               Выйти
             </button>
@@ -79,55 +90,67 @@ function App() {
 
       {/* Контент + сайдбар */}
       <div className="app-shell">
-        <aside className="sidebar">
+        {/* затемнение фона при открытом меню на мобилке */}
+        {isMobileMenuOpen && (
+          <div
+            className="app-mobile-backdrop"
+            onClick={closeMobileMenu}
+          />
+        )}
+
+        <aside
+          className={
+            'sidebar' + (isMobileMenuOpen ? ' sidebar--mobile-open' : '')
+          }
+        >
           <div className="sidebar-title">Меню</div>
           <nav className="sidebar-nav">
-            {/* 1. Карта */}
             <NavLink
               to="/map"
               className={({ isActive }) =>
                 'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
               }
+              onClick={closeMobileMenu}
             >
               Карта
             </NavLink>
 
-            {/* 2. Новая заявка */}
             <NavLink
               to="/requests/drivers"
               className={({ isActive }) =>
                 'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
               }
+              onClick={closeMobileMenu}
             >
               Новая заявка
             </NavLink>
 
-            {/* 3. Все заявки */}
             <NavLink
               to="/all-requests"
               className={({ isActive }) =>
                 'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
               }
+              onClick={closeMobileMenu}
             >
               Все заявки
             </NavLink>
 
-            {/* 3. Контакты */}
             <NavLink
               to="/contacts"
               className={({ isActive }) =>
                 'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
               }
+              onClick={closeMobileMenu}
             >
               Контакты
             </NavLink>
 
-            {/* 4. Напоминания */}
             <NavLink
               to="/reminders"
               className={({ isActive }) =>
                 'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
               }
+              onClick={closeMobileMenu}
             >
               Напоминания
               {activeRemindersCount > 0 && (
@@ -151,42 +174,42 @@ function App() {
               )}
             </NavLink>
 
-            {/* 5. Документы на выдачу */}
             <NavLink
               to="/documents"
               className={({ isActive }) =>
                 'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
               }
+              onClick={closeMobileMenu}
             >
               Документы на выдачу
             </NavLink>
 
-            {/* 6. Отчеты */}
             <NavLink
               to="/reports"
               className={({ isActive }) =>
                 'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
               }
+              onClick={closeMobileMenu}
             >
               Отчеты
             </NavLink>
 
-            {/* 7. Реестры карьеров */}
             <NavLink
               to="/registries/quarries"
               className={({ isActive }) =>
                 'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
               }
+              onClick={closeMobileMenu}
             >
               Реестры карьеров
             </NavLink>
 
-            {/* 8. Справка */}
             <NavLink
               to="/help"
               className={({ isActive }) =>
                 'sidebar-link' + (isActive ? ' sidebar-link-active' : '')
               }
+              onClick={closeMobileMenu}
             >
               Справка
             </NavLink>
@@ -262,11 +285,8 @@ function App() {
             />
 
             <Route path="/documents" element={<DocumentsPage />} />
-
             <Route path="/map" element={<MapPage />} />
-
             <Route path="/contacts" element={<ContactsPage />} />
-
             <Route path="/registries/quarries" element={<QuarryRegistriesPage />} />
 
             <Route
@@ -281,12 +301,8 @@ function App() {
             />
 
             <Route path="/import-contacts" element={<ImportContactsPage />} />
-
             <Route path="/admin-reset-map" element={<AdminResetMap />} />
-
-
             <Route path="/reminders" element={<RemindersPage />} />
-
             <Route path="/help" element={<HelpPage />} />
           </Routes>
         </main>

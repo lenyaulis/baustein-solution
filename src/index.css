@@ -485,6 +485,154 @@ select.form-input {
 }
 
 /* ===== Мобильная адаптация ===== */
+/* ===== Мобильная адаптация ===== */
+@media (max-width: 768px) {
+  .app-shell {
+    display: block;
+  }
+
+  /* кнопка меню в шапке */
+  .app-mobile-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    margin-left: auto;
+    margin-right: 8px;
+    font-size: 13px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: rgba(0, 0, 0, 0.1);
+    color: #f9fafb;
+    cursor: pointer;
+  }
+
+  /* сайдбар превращаем в выезжающее меню */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 52px; /* подгони под высоту .app-header */
+    bottom: 0;
+    width: 72%;
+    max-width: 280px;
+    background: var(--bau-black);
+    padding: 16px 12px;
+    box-sizing: border-box;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease-out;
+    z-index: 40;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .sidebar--mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-title {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sidebar-link {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  /* затемнение фона под меню */
+  .app-mobile-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 30;
+  }
+
+  .main-area {
+    padding: 12px;
+    align-items: stretch;
+  }
+
+  .main-area > div {
+    max-width: 100%;
+  }
+
+  .card {
+    padding: 12px 10px;
+    border-radius: 12px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .form-section-title {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+    row-gap: 8px;
+  }
+
+  .form-row {
+    margin-bottom: 2px;
+  }
+
+  .form-label {
+    font-size: 12px;
+  }
+
+  .form-input,
+  .field input,
+  .field textarea,
+  .field select {
+    font-size: 14px;
+    padding: 6px 8px;
+  }
+
+  .form-inline {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .primary-btn {
+    width: 100%;
+    justify-content: center;
+    margin-top: 12px;
+    padding: 10px 0;
+    font-size: 14px;
+  }
+
+  .list > li {
+    padding: 8px 9px;
+  }
+
+  .app-header-inner {
+    padding: 8px 12px;
+  }
+
+  .app-header-title-main {
+    font-size: 18px;
+  }
+
+  .app-footer-inner {
+    padding: 8px 12px;
+    font-size: 11px;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
 @media (max-width: 768px) {
   .app-shell {
     flex-direction: column;
