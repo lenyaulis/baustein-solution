@@ -78,9 +78,12 @@ function App() {
           </button>
 
           <div className="app-header-user">
-            <span className="app-header-user-email">
+            <a
+              className="app-header-user-email"
+              href="mailto:operator@baustein.local"
+            >
               operator@baustein.local
-            </span>
+            </a>
             <button className="app-header-logout-btn" type="button">
               Выйти
             </button>
