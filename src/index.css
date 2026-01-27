@@ -125,6 +125,11 @@ a:hover {
   cursor: pointer;
 }
 
+/* по умолчанию (ПК) кнопку меню прячем */
+.app-mobile-menu-btn {
+  display: none;
+}
+
 /* ===== нижняя плашка ===== */
 
 .app-footer {
@@ -485,7 +490,6 @@ select.form-input {
 }
 
 /* ===== Мобильная адаптация ===== */
-/* ===== Мобильная адаптация ===== */
 @media (max-width: 768px) {
   .app-shell {
     display: block;
@@ -552,119 +556,6 @@ select.form-input {
     inset: 0;
     background: rgba(0, 0, 0, 0.35);
     z-index: 30;
-  }
-
-  .main-area {
-    padding: 12px;
-    align-items: stretch;
-  }
-
-  .main-area > div {
-    max-width: 100%;
-  }
-
-  .card {
-    padding: 12px 10px;
-    border-radius: 12px;
-  }
-
-  .card-title {
-    font-size: 16px;
-    margin-bottom: 10px;
-  }
-
-  .form-section-title {
-    font-size: 12px;
-    margin-bottom: 6px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-    column-gap: 0;
-    row-gap: 8px;
-  }
-
-  .form-row {
-    margin-bottom: 2px;
-  }
-
-  .form-label {
-    font-size: 12px;
-  }
-
-  .form-input,
-  .field input,
-  .field textarea,
-  .field select {
-    font-size: 14px;
-    padding: 6px 8px;
-  }
-
-  .form-inline {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .primary-btn {
-    width: 100%;
-    justify-content: center;
-    margin-top: 12px;
-    padding: 10px 0;
-    font-size: 14px;
-  }
-
-  .list > li {
-    padding: 8px 9px;
-  }
-
-  .app-header-inner {
-    padding: 8px 12px;
-  }
-
-  .app-header-title-main {
-    font-size: 18px;
-  }
-
-  .app-footer-inner {
-    padding: 8px 12px;
-    font-size: 11px;
-    justify-content: center;
-    text-align: center;
-  }
-}
-
-@media (max-width: 768px) {
-  .app-shell {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-    padding: 8px 10px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: var(--bau-black);
-  }
-
-  .sidebar-title {
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
-
-  .sidebar-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .sidebar-link {
-    flex: 1 1 auto;
-    text-align: center;
-    padding: 6px 8px;
-    font-size: 13px;
   }
 
   .main-area {
