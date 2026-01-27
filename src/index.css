@@ -617,3 +617,45 @@ select.form-input {
   color: #fff;
   border-color: #2563eb;
 }
+
+.overdue-banner {
+  position: fixed;
+  top: 72px;
+  right: 16px;
+  background: #111827; /* почти чёрный */
+  color: #f9fafb;      /* светлый текст */
+  padding: 10px 18px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 9999;
+  opacity: 0;
+  transform: translateX(120%);
+  transition:
+    transform 0.35s ease-out,
+    opacity 0.35s ease-out;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.overdue-banner--visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.overdue-banner__close {
+  background: rgba(249, 250, 251, 0.12);
+  border: none;
+  border-radius: 999px;
+  color: #f9fafb;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -17,7 +17,7 @@ const QUARRY_TELEGRAM = {
   'Шабры (УралНеруд)': 'Tatuna111',
   'Шитовской (УралНеруд)': 'Tatuna111',
   'Билимбай (УралДоломит)': 'KseniiaOk',
-  Паритет: 'koptyakизм',
+  Паритет: 'koptyакизм',
 };
 
 const EXECUTORS = [
@@ -318,6 +318,25 @@ function RequestsPage({
     navigate('/requests/quarries');
   };
 
+  // фильтрация по сегодняшней дате
+  const todayISO = new Date().toISOString().slice(0, 10); // '2026-01-22'
+
+  const todayMaterialRequests = driverMaterialRequests.filter(
+    (r) => r.date === todayISO,
+  );
+
+  const todayServiceRequests = driverServiceRequests.filter(
+    (r) => r.date === todayISO,
+  );
+
+  const todayPickupRequests = pickupRequests.filter(
+    (r) => r.date === todayISO,
+  );
+
+  const todayQuarryRequests = quarryRequests.filter(
+    (r) => r.date === todayISO,
+  );
+
   // материальщики
   const deleteDriverMaterial = async (id) => {
     const ok = window.confirm('Удалить эту заявку?');
@@ -563,8 +582,7 @@ function RequestsPage({
                 <button
                   type="button"
                   className={
-                    'tab' +
-                    (driverMode === 'material' ? ' tab-active' : '')
+                    'tab' + (driverMode === 'material' ? ' tab-active' : '')
                   }
                   onClick={() => setDriverMode('material')}
                 >
@@ -573,8 +591,7 @@ function RequestsPage({
                 <button
                   type="button"
                   className={
-                    'tab' +
-                    (driverMode === 'service' ? ' tab-active' : '')
+                    'tab' + (driverMode === 'service' ? ' tab-active' : '')
                   }
                   onClick={() => setDriverMode('service')}
                 >
@@ -583,8 +600,7 @@ function RequestsPage({
                 <button
                   type="button"
                   className={
-                    'tab' +
-                    (driverMode === 'pickup' ? ' tab-active' : '')
+                    'tab' + (driverMode === 'pickup' ? ' tab-active' : '')
                   }
                   onClick={() => setDriverMode('pickup')}
                 >
@@ -610,7 +626,7 @@ function RequestsPage({
 
                   <Card title="Список заявок (материал)">
                     <DriverMaterialList
-                      items={driverMaterialRequests}
+                      items={todayMaterialRequests}
                       onCopy={handleCopyMaterial}
                       onEdit={handleEditMaterial}
                       onDelete={deleteDriverMaterial}
@@ -643,7 +659,7 @@ function RequestsPage({
 
                   <Card title="Список заявок (услуга)">
                     <DriverServiceList
-                      items={driverServiceRequests}
+                      items={todayServiceRequests}
                       onCopy={handleCopyService}
                       onEdit={handleEditService}
                       onDelete={deleteDriverService}
@@ -675,7 +691,7 @@ function RequestsPage({
 
                   <Card title="Список заявок (самовывоз)">
                     <PickupList
-                      items={pickupRequests}
+                      items={todayPickupRequests}
                       onEdit={handleEditPickup}
                       onDelete={deletePickup}
                       busyId={busyId}
@@ -703,7 +719,7 @@ function RequestsPage({
 
                 <Card title="Список заявок в карьеры">
                   <QuarryRequestList
-                    items={quarryRequests}
+                    items={todayQuarryRequests}
                     onCopy={handleCopyQuarryRequest}
                     onDelete={deleteQuarryRequest}
                     onOpenTelegram={(quarryName) =>

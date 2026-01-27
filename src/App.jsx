@@ -1,5 +1,6 @@
 // src/App.jsx
 import { NavLink, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import QuarryRegistriesPage from './pages/QuarryRegistriesPage';
 import HelpPage from './pages/HelpPage';
 import RequestsPage from './pages/RequestsPage';
@@ -11,6 +12,10 @@ import MapPage from './pages/MapPage';
 import ContactsPage from './pages/ContactsPage';
 import { useRequestsStore } from './hooks/useRequestsStore';
 import { useRemindersStore } from './hooks/useRemindersStore';
+import OverdueReminderBanner from './components/reminders/OverdueReminderBanner';
+import ImportContactsPage from './pages/ImportContactsPage';
+import AdminResetMap from './pages/AdminResetMap';
+
 
 function App() {
   const {
@@ -32,10 +37,28 @@ function App() {
     updateRequest,
   } = useRequestsStore();
 
-  const { activeRemindersCount } = useRemindersStore();
+  const {
+    activeRemindersCount,
+    reminders,
+  } = useRemindersStore();
+
+  const [showOverdueBanner, setShowOverdueBanner] = useState(false);
+
+  const hasOverdue = activeRemindersCount > 0;
+
+  useEffect(() => {
+    if (hasOverdue) {
+      setShowOverdueBanner(true);
+    }
+  }, [hasOverdue]);
 
   return (
     <div className="app-root">
+      <OverdueReminderBanner
+        visible={showOverdueBanner}
+        onClose={() => setShowOverdueBanner(false)}
+      />
+
       {/* Шапка */}
       <header className="app-header">
         <div className="app-header-inner">
@@ -256,6 +279,11 @@ function App() {
                 />
               }
             />
+
+            <Route path="/import-contacts" element={<ImportContactsPage />} />
+
+            <Route path="/admin-reset-map" element={<AdminResetMap />} />
+
 
             <Route path="/reminders" element={<RemindersPage />} />
 

@@ -1,338 +1,487 @@
 // src/components/contacts/CarriersSection.jsx
-import { useState, useMemo } from 'react';
-import AccordionSection from './AccordionSection';
-import FilterChip from './FilterChip';
-import { INITIAL_CARRIERS, CAPACITIES } from '../../data/contacts/carriersMock';
-import { groupCarriersByCapacity } from '../../utils/groupCarriersByCapacity';
+import { useEffect, useState } from 'react';
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from 'firebase/firestore';
+import { db } from '../../firebase/client';
 
 export default function CarriersSection() {
-  const [isOpen, setIsOpen] = useState(true);
-  const [selectedCapacity, setSelectedCapacity] = useState(null);
+  const [carriers, setCarriers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editContact, setEditContact] = useState(null); // { carrierId, index, name, phones }
+  const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(true);
 
-  const [carriers, setCarriers] = useState(INITIAL_CARRIERS);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'carriers'));
+        const items = snap.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }));
+        setCarriers(items);
+      } catch (e) {
+        console.error(e);
+        alert('Не удалось загрузить перевозчиков');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
-  const [editingCarrierId, setEditingCarrierId] = useState(null);
-  const [formName, setFormName] = useState('');
-  const [formPhone, setFormPhone] = useState('');
-  const [formCapacities, setFormCapacities] = useState([]);
-  const [showCarrierForm, setShowCarrierForm] = useState(false);
+  const startEditContact = (carrierId, contactIndex) => {
+    const carrier = carriers.find((c) => c.id === carrierId);
+    if (!carrier) return;
+    const contact = carrier.contacts?.[contactIndex];
+    if (!contact) return;
 
-  const carriersByCapacity = useMemo(
-    () => groupCarriersByCapacity(carriers),
-    [carriers]
-  );
-
-  const handleToggle = () => setIsOpen((prev) => !prev);
-
-  // CRUD
-
-  const resetCarrierForm = () => {
-    setEditingCarrierId(null);
-    setFormName('');
-    setFormPhone('');
-    setFormCapacities([]);
+    setEditContact({
+      carrierId,
+      index: contactIndex,
+      name: contact.name || '',
+      phones: (contact.phones || []).join(', '),
+    });
   };
 
-  const handleSubmitCarrier = (e) => {
-    e.preventDefault();
-    if (!formName.trim()) return;
+  const cancelEdit = () => {
+    setEditContact(null);
+  };
 
-    if (editingCarrierId) {
+  const saveContact = async () => {
+    if (!editContact) return;
+    const { carrierId, index, name, phones } = editContact;
+
+    const carrier = carriers.find((c) => c.id === carrierId);
+    if (!carrier) return;
+
+    const newContacts = [...(carrier.contacts || [])];
+    const phoneList = phones
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean);
+
+    newContacts[index] = {
+      ...(newContacts[index] || {}),
+      raw: `${name} ${phoneList.join(' ')}`.trim(),
+      name: name || null,
+      phones: phoneList,
+    };
+
+    try {
+      setBusy(true);
+      await updateDoc(doc(db, 'carriers', carrierId), {
+        contacts: newContacts,
+      });
+
       setCarriers((prev) =>
         prev.map((c) =>
-          c.id === editingCarrierId
-            ? {
-                ...c,
-                name: formName.trim(),
-                phone: formPhone.trim(),
-                capacities: formCapacities,
-              }
-            : c
-        )
+          c.id === carrierId ? { ...c, contacts: newContacts } : c,
+        ),
       );
-    } else {
-      const newCarrier = {
-        id: `c_${Date.now()}`,
-        name: formName.trim(),
-        phone: formPhone.trim(),
-        capacities: formCapacities,
-      };
-      setCarriers((prev) => [...prev, newCarrier]);
-    }
-
-    resetCarrierForm();
-    setShowCarrierForm(false);
-  };
-
-  const handleEditCarrier = (carrier) => {
-    setEditingCarrierId(carrier.id);
-    setFormName(carrier.name);
-    setFormPhone(carrier.phone || '');
-    setFormCapacities(carrier.capacities || []);
-    setShowCarrierForm(true);
-  };
-
-  const handleDeleteCarrier = (id) => {
-    if (!window.confirm('Удалить перевозчика?')) return;
-    setCarriers((prev) => prev.filter((c) => c.id !== id));
-    if (editingCarrierId === id) {
-      resetCarrierForm();
-      setShowCarrierForm(false);
+      setEditContact(null);
+    } catch (e) {
+      console.error(e);
+      alert('Не удалось сохранить контакт');
+    } finally {
+      setBusy(false);
     }
   };
 
-  const toggleCapacityInForm = (cap) => {
-    setFormCapacities((prev) =>
-      prev.includes(cap) ? prev.filter((c) => c !== cap) : [...prev, cap]
-    );
+  const deleteContact = async (carrierId, contactIndex) => {
+    const ok = window.confirm('Удалить этот контакт?');
+    if (!ok) return;
+
+    const carrier = carriers.find((c) => c.id === carrierId);
+    if (!carrier) return;
+
+    const newContacts = [...(carrier.contacts || [])];
+    newContacts.splice(contactIndex, 1);
+
+    try {
+      setBusy(true);
+      await updateDoc(doc(db, 'carriers', carrierId), {
+        contacts: newContacts,
+      });
+
+      setCarriers((prev) =>
+        prev.map((c) =>
+          c.id === carrierId ? { ...c, contacts: newContacts } : c,
+        ),
+      );
+    } catch (e) {
+      console.error(e);
+      alert('Не удалось удалить контакт');
+    } finally {
+      setBusy(false);
+    }
   };
 
-  const handleNewCarrierClick = () => {
-    resetCarrierForm();
-    setShowCarrierForm((prev) => !prev);
+  const addContact = async (carrierId) => {
+    const carrier = carriers.find((c) => c.id === carrierId);
+    if (!carrier) return;
+
+    const name = window.prompt('Имя контакта');
+    if (!name) return;
+    const phonesStr = window.prompt('Телефон(ы) через запятую');
+    if (!phonesStr) return;
+
+    const phoneList = phonesStr
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean);
+
+    const newContacts = [
+      ...(carrier.contacts || []),
+      {
+        raw: `${name} ${phoneList.join(' ')}`.trim(),
+        name,
+        phones: phoneList,
+      },
+    ];
+
+    try {
+      setBusy(true);
+      await updateDoc(doc(db, 'carriers', carrierId), {
+        contacts: newContacts,
+      });
+
+      setCarriers((prev) =>
+        prev.map((c) =>
+          c.id === carrierId ? { ...c, contacts: newContacts } : c,
+        ),
+      );
+    } catch (e) {
+      console.error(e);
+      alert('Не удалось добавить контакт');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const deleteCarrier = async (carrierId) => {
+    const ok = window.confirm('Удалить этого перевозчика целиком?');
+    if (!ok) return;
+
+    try {
+      setBusy(true);
+      await deleteDoc(doc(db, 'carriers', carrierId));
+      setCarriers((prev) => prev.filter((c) => c.id !== carrierId));
+    } catch (e) {
+      console.error(e);
+      alert('Не удалось удалить перевозчика');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
-    <AccordionSection
-      id="carriers"
-      title="Перевозчики"
-      isOpen={isOpen}
-      onToggle={handleToggle}
+    <div
+      style={{
+        borderBottom: '1px solid #e5e7eb',
+        padding: 12,
+      }}
     >
-      {/* Кнопка "Новая форма" */}
-      <div style={{ marginBottom: 8 }}>
-        <button
-          type="button"
-          onClick={handleNewCarrierClick}
-          style={{
-            padding: '6px 12px',
-            borderRadius: 6,
-            border: '1px solid #2563eb',
-            background: showCarrierForm ? '#eff6ff' : '#ffffff',
-            color: '#1d4ed8',
-            fontSize: 13,
-            cursor: 'pointer',
-          }}
-        >
-          {showCarrierForm ? 'Скрыть форму' : 'Новая форма'}
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+          border: 'none',
+          background: 'transparent',
+          padding: 0,
+          cursor: 'pointer',
+        }}
+      >
+        <span style={{ fontSize: 14, fontWeight: 600 }}>Перевозчики</span>
+        <span style={{ fontSize: 12, color: '#6b7280' }}>
+          {open ? 'Свернуть ▲' : 'Развернуть ▼'}
+        </span>
+      </button>
 
-      {/* Форма добавления/редактирования перевозчика */}
-      {showCarrierForm && (
-        <form
-          onSubmit={handleSubmitCarrier}
-          style={{
-            marginBottom: 12,
-            padding: '8px 10px',
-            borderRadius: 8,
-            border: '1px solid #e5e7eb',
-            background: '#f9fafb',
-            fontSize: 13,
-          }}
-        >
-          <div style={{ fontWeight: 600, marginBottom: 6 }}>
-            {editingCarrierId ? 'Редактировать перевозчика' : 'Добавить перевозчика'}
-          </div>
-
-          <div style={{ marginBottom: 6 }}>
-            <div style={{ marginBottom: 2 }}>Имя / организация</div>
-            <input
-              type="text"
-              value={formName}
-              onChange={(e) => setFormName(e.target.value)}
-              placeholder="Например, Быков или Мирастрой"
-              style={{
-                width: '100%',
-                padding: '6px 8px',
-                borderRadius: 6,
-                border: '1px solid #d1d5db',
-                fontSize: 13,
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: 6 }}>
-            <div style={{ marginBottom: 2 }}>Телефон</div>
-            <input
-              type="text"
-              value={formPhone}
-              onChange={(e) => setFormPhone(e.target.value)}
-              placeholder="+7 ..."
-              style={{
-                width: '100%',
-                padding: '6px 8px',
-                borderRadius: 6,
-                border: '1px solid #d1d5db',
-                fontSize: 13,
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: 8 }}>
-            <div style={{ marginBottom: 4 }}>Объёмы машин (тонн)</div>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {CAPACITIES.map((cap) => {
-                const active = formCapacities.includes(cap);
-                return (
-                  <button
-                    key={cap}
-                    type="button"
-                    onClick={() => toggleCapacityInForm(cap)}
-                    style={{
-                      padding: '3px 8px',
-                      borderRadius: 999,
-                      border: active ? '1px solid #2563eb' : '1px solid #d1d5db',
-                      background: active ? '#eff6ff' : '#ffffff',
-                      color: active ? '#1d4ed8' : '#374151',
-                      fontSize: 12,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {cap} т
-                  </button>
-                );
-              })}
+      {open && (
+        <>
+          {loading ? (
+            <div style={{ marginTop: 8, fontSize: 13 }}>
+              Загружаем перевозчиков...
             </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              type="submit"
+          ) : (
+            <div
               style={{
-                padding: '6px 12px',
-                borderRadius: 6,
-                border: 'none',
-                background: '#2563eb',
-                color: '#ffffff',
-                fontSize: 13,
-                cursor: 'pointer',
+                marginTop: 8,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                gap: 12,
               }}
             >
-              {editingCarrierId ? 'Сохранить' : 'Добавить'}
-            </button>
-
-            {editingCarrierId && (
-              <button
-                type="button"
-                onClick={() => {
-                  resetCarrierForm();
-                  setShowCarrierForm(false);
-                }}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 6,
-                  border: '1px solid #d1d5db',
-                  background: '#ffffff',
-                  color: '#374151',
-                  fontSize: 13,
-                  cursor: 'pointer',
-                }}
-              >
-                Отмена
-              </button>
-            )}
-          </div>
-        </form>
-      )}
-
-      {/* Фильтр по объёму */}
-      <div style={{ marginBottom: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <FilterChip
-          label="Все объёмы"
-          active={selectedCapacity === null}
-          onClick={() => setSelectedCapacity(null)}
-        />
-        {CAPACITIES.map((cap) => (
-          <FilterChip
-            key={cap}
-            label={`${cap} т`}
-            active={selectedCapacity === cap}
-            onClick={() => setSelectedCapacity(cap)}
-          />
-        ))}
-      </div>
-
-      {CAPACITIES.map((cap) => {
-        const list = carriersByCapacity[cap] || [];
-        if (list.length === 0) return null;
-        if (selectedCapacity !== null && selectedCapacity !== cap) return null;
-
-        return (
-          <div
-            key={cap}
-            style={{
-              marginBottom: 10,
-              padding: '8px 10px',
-              borderRadius: 8,
-              border: '1px solid #e5e7eb',
-              background: '#f9fafb',
-            }}
-          >
-            <div style={{ fontWeight: 600, marginBottom: 4 }}>
-              Машина {cap} тонн
-            </div>
-            <ul
-              style={{
-                listStyle: 'none',
-                margin: 0,
-                padding: 0,
-                fontSize: 13,
-              }}
-            >
-              {list.map((c) => (
-                <li
+              {carriers.map((c) => (
+                <div
                   key={c.id}
                   style={{
-                    marginBottom: 4,
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 10,
+                    padding: 8,
+                    background: '#f9fafb',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 8,
+                    flexDirection: 'column',
+                    minHeight: 120,
                   }}
                 >
-                  <span>
-                    • {c.name}
-                    {c.phone ? `, ${c.phone}` : ''}
-                  </span>
-
-                  <span style={{ display: 'flex', gap: 6 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      gap: 8,
+                      marginBottom: 4,
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>
+                        {c.name}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: '#6b7280',
+                          marginTop: 2,
+                        }}
+                      >
+                        Объём:{' '}
+                        {c.capacityTons
+                          ? `${c.capacityTons} тонн`
+                          : 'не указан'}
+                      </div>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => handleEditCarrier(c)}
+                      onClick={() => deleteCarrier(c.id)}
+                      disabled={busy}
                       style={{
-                        padding: '2px 8px',
-                        borderRadius: 999,
-                        border: '1px solid #d1d5db',
-                        background: '#ffffff',
-                        fontSize: 11,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Редактировать
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteCarrier(c.id)}
-                      style={{
-                        padding: '2px 8px',
-                        borderRadius: 999,
-                        border: '1px solid #f97373',
-                        background: '#fef2f2',
+                        fontSize: 10,
+                        padding: '2px 6px',
+                        borderRadius: 6,
+                        border: '1px solid #ef4444',
+                        background: '#fee2e2',
                         color: '#b91c1c',
-                        fontSize: 11,
-                        cursor: 'pointer',
+                        cursor: busy ? 'default' : 'pointer',
+                        height: 24,
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       Удалить
                     </button>
-                  </span>
-                </li>
+                  </div>
+
+                  <div style={{ marginTop: 4 }}>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 500,
+                        marginBottom: 4,
+                      }}
+                    >
+                      Контакты
+                    </div>
+
+                    {(c.contacts || []).length === 0 && (
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: '#9ca3af',
+                          marginBottom: 4,
+                        }}
+                      >
+                        Нет контактов
+                      </div>
+                    )}
+
+                    {(c.contacts || []).map((ct, idx) => {
+                      const isEditing =
+                        editContact &&
+                        editContact.carrierId === c.id &&
+                        editContact.index === idx;
+
+                      if (isEditing) {
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 4,
+                              marginBottom: 8,
+                            }}
+                          >
+                            <input
+                              type="text"
+                              value={editContact.name}
+                              onChange={(e) =>
+                                setEditContact((prev) => ({
+                                  ...prev,
+                                  name: e.target.value,
+                                }))
+                              }
+                              placeholder="Имя"
+                              style={{
+                                fontSize: 12,
+                                padding: 4,
+                                borderRadius: 6,
+                                border: '1px solid #e5e7eb',
+                              }}
+                            />
+                            <input
+                              type="text"
+                              value={editContact.phones}
+                              onChange={(e) =>
+                                setEditContact((prev) => ({
+                                  ...prev,
+                                  phones: e.target.value,
+                                }))
+                              }
+                              placeholder="Телефон(ы) через запятую"
+                              style={{
+                                fontSize: 12,
+                                padding: 4,
+                                borderRadius: 6,
+                                border: '1px solid #e5e7eb',
+                              }}
+                            />
+                            <div
+                              style={{
+                                display: 'flex',
+                                gap: 8,
+                                marginTop: 4,
+                              }}
+                            >
+                              <button
+                                type="button"
+                                onClick={saveContact}
+                                disabled={busy}
+                                style={{
+                                  fontSize: 12,
+                                  padding: '4px 8px',
+                                  borderRadius: 6,
+                                  border: 'none',
+                                  background: '#16a34a',
+                                  color: 'white',
+                                  cursor: busy ? 'default' : 'pointer',
+                                }}
+                              >
+                                Сохранить
+                              </button>
+                              <button
+                                type="button"
+                                onClick={cancelEdit}
+                                disabled={busy}
+                                style={{
+                                  fontSize: 12,
+                                  padding: '4px 8px',
+                                  borderRadius: 6,
+                                  border: '1px solid #9ca3af',
+                                  background: 'white',
+                                  color: '#374151',
+                                  cursor: busy ? 'default' : 'pointer',
+                                }}
+                              >
+                                Отмена
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: 8,
+                            marginBottom: 4,
+                          }}
+                        >
+                          <div style={{ fontSize: 12 }}>
+                            <span style={{ fontWeight: 500 }}>
+                              {ct.name || 'Без имени'}
+                            </span>
+                            {ct.phones && ct.phones.length > 0 && (
+                              <span> — {ct.phones.join(', ')}</span>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', gap: 4 }}>
+                            <button
+                              type="button"
+                              onClick={() => startEditContact(c.id, idx)}
+                              disabled={busy}
+                              style={{
+                                fontSize: 10,
+                                padding: '2px 6px',
+                                borderRadius: 6,
+                                border: '1px solid #3b82f6',
+                                background: '#eff6ff',
+                                color: '#1d4ed8',
+                                cursor: busy ? 'default' : 'pointer',
+                                height: 24,
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              Редактировать
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteContact(c.id, idx)}
+                              disabled={busy}
+                              style={{
+                                fontSize: 10,
+                                padding: '2px 6px',
+                                borderRadius: 6,
+                                border: '1px solid #ef4444',
+                                background: '#fee2e2',
+                                color: '#b91c1c',
+                                cursor: busy ? 'default' : 'pointer',
+                                height: 24,
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              Удалить
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    <button
+                      type="button"
+                      onClick={() => addContact(c.id)}
+                      disabled={busy}
+                      style={{
+                        marginTop: 4,
+                        fontSize: 11,
+                        padding: '4px 8px',
+                        borderRadius: 6,
+                        border: '1px dashed #6b7280',
+                        background: 'white',
+                        cursor: busy ? 'default' : 'pointer',
+                      }}
+                    >
+                      Добавить контакт
+                    </button>
+                  </div>
+                </div>
               ))}
-            </ul>
-          </div>
-        );
-      })}
-    </AccordionSection>
+            </div>
+          )}
+        </>
+      )}
+    </div>
   );
 }
